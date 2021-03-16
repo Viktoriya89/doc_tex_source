@@ -1,0 +1,162 @@
+\pagestyle{headings}
+\chapter{Geometry service}
+We present here the \textit{Coatjava} geometry for A Low Energy Recoil Tracker (ALERT) which  includes only active detector volumes. The goal of this geometry service is to be used for reconstruction. It is implemented in the \textit{Coatjava} framework available on:\\ \url{https://github.com/JeffersonLab/clas12-offline-software}. 
+
+There are 2 different source codes, one for ALERT Hyperbolic Drift Chamber (AHDC) and another for ALERT Time Of Flight (ATOF) detector parts. The geometry code is available on \texttt{Alert} branch: \\ 
+\url{https://github.com/JeffersonLab/clas12-offline-software/tree/Alert/common-tools/clas-geometry/src/main/java/org/jlab/geom/detector/alert}.
+
+All detectors are structured as follows:
+\begin{itemize}
+	\item sector
+	\item superlayer
+	\item layer
+	\item component
+\end{itemize}
+where a component is contained inside a layer and is the smallest unity of a detector; layers are grouped in superlayers; superlayers are arranged in sectors. 
+
+To start, \textit{Netbeans} or \textit{Eclipse} IDE has to be use. \textit{Coatjava} can be compiled using: 
+\par
+\begin{verbbox}[\footnotesize]
+> git clone https://github.com/jeffersonlab/clas12-offline-software
+> cd clas12-offline-software
+> ./build-coatjava.sh
+\end{verbbox}
+\fbox{\theverbbox}\par
+
+\section{AHDC}
+The drift chamber is organised in superlayers. The superlayer \#0 and \#4 have only one layer (\#0); the superlayer \#1, \#2, \#3 have 2 layers (\#0 \& \#1) each. Counting starts from the smallest radius, \#number increases with the radius.   
+\begin{table}[H]
+\centering
+			\begin{tabular}{ccccc}
+              & \textbf{Sector} & \textbf{Superlayer} & \textbf{Layer} & \textbf{Component}                                  \\
+\textbf{AHDC} & 1               & 5                   & 1 or 2         & ALERTDCWire
+			\end{tabular}
+			\label{ahdc_struct}
+			\caption{Drift chamber structure.}
+	\end{table}	
+The \texttt{ALERTDCWire} is a concave cell defined by 2 faces composed of 6 vertices each. Both faces are contained in XY plan. We call "top" - the XY face with $Z = - \frac{DC length}{2}$, and 'bottom" - the XY face with $Z = + \frac{DC length}{2}$, where $DC length$ is the total length of our drift chamber. Each wire starts at top face and arrives to the bottom face. The 2 ends of each wire have an angular shift between them - the stereo angle. In cylindrical coordinates frame, when DC axis is aligned with Z axis, the stereo angle corresponds to angle $\phi$ in XY plan and is $\phi = 20^{\circ}$. The shift  $\phi$ is oriented (counter)clockwise alternatively from one superlayer to another. An example of AHDC-like cell, where shapes are exagerated for illustration, is shown on figure \ref{fig:ahdc_cell}. 
+%\includepdf[pagecommand={}]{phaseI_Data_MC_CC.pdf}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{AHDC_ConcaveCell_ConstructionOk_easyView.eps}
+	\caption{5 AHDC-like cells with exagerated concavity for easier visualisation.}
+	\label{fig:ahdc_cell}
+\end{figure}
+
+The 6 verticies of each face represent the field wires. One signal wire, represented by a line, is contained inside each AHDC cell. Signal wire starts at the center of top face and arrives to the center of bottom face. The number of cells varies from one superlayer to another. 
+
+The parameters necessary for geometry construction are listed below:
+\begin{itemize}
+		\item {\textcolor{magenta}{\texttt{int nsectors = 1}}}
+		\item {\textcolor{magenta}{\texttt{int nsuperl = 5}}}
+		\item {\textcolor{magenta}{\texttt{int nlayers = 2}}}
+		%\item {\textcolor{magenta}{Advice: keep the previous features hardcoded since they represent a fixed AHDC design.}}
+		\item length increment between layers \texttt{double DR\_layer  = 4.0d mm} 
+		\item {number of wires \& layer radius (mm) \\					\texttt{double numWires    = 47.0d, 56.0d, 72.0d, 87.0d, 99.0d} \\
+       			\texttt{double R\_layer  = 32.0d, 38.0d, 48.0d, 58.0d, 68.0d}} 
+		\item {to define front and back ends in Z \texttt{double zoff1 = 0.0d, 
+        double zoff2 = 300.0d mm}}
+		\item to define the $20^{\circ}$ stereo angle \texttt{double thster = Math.toRadians(20.0d)} (radians)
+		\item to define the length in Z axis \texttt{double zl = 300.0d} in mm.
+	\end{itemize}
+
+\newpage
+The main classes needed to construct AHDC are:
+\begin{enumerate}
+	\item \texttt{MYFactory\_ALERTDCWire}, where the geometry is coded. \textcolor{magenta}{Attention: vertices, that define the top and bottom cell faces, have to be given in counterclockwise order.} Here, the first point $\#0$ is at $(X_0=0, Y_0<0)$, point $\#3$ is symmetric with $(X_3 = 0, Y_3 > 0), |{Y_0}| = Y_3$. Same order have to be used for both faces. That, points $\#0$ and $\#6$ have the same $(X,Y)$ coordinates, but opposites $Z$. Reminder: $Face_1$ - points $\#0$ to $\#5$, $Face_2$ - points $\#6$ to $\#11$.
+	\item \texttt{MYDetector\_ALERTDCWire, MYSector\_ALERTDCWire, MYSuperlayer\_ALERTDCWire, \\ MYLayer\_ALERTDCWire}, that have to exist to create the structure.
+	\item \texttt{ALERTDCWire, ConcaveComponent}, are necessary to create concave shape and the AHDC cell.
+	\item \texttt{CLAS12Vis} is used to visualize what the codes produces. Use \texttt{MYFactory\_ALERTDCWire} to create the AHDC factory. Create the detector itself by \\ \texttt{Detector DC = factory.createDetectorCLAS(provider)}. \\ Give color by  \texttt{> viz.add(DC, Color.red)} \\ and visulize by \\ \texttt{> viz.setVisible(true)}.
+\end{enumerate}
+
+The final AHDC geometry for reconstruction is shown on figures \ref{fig:ahdc_1}, \ref{fig:ahdc_2}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{AHDC_face_detail1.eps}
+	\caption{Detail of AHDC sector.}
+	\label{fig:ahdc_1}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{AHDC_profile.eps}
+	\caption{3D AHDC view.}
+	\label{fig:ahdc_2}
+\end{figure}
+
+
+
+\section{ATOF}
+Time of flight ring surrounds the drift chamber. It is organised in 15 sectors that correspond to the 15 ATOF mechanical modules. Each sector has 2 superlayers (SL) \#0 \& \#1, numbering starts from smaller radius. SL\#0 is represented by an assambly of 4 small paddles,  SL\#1 - by an assambly of 4 big paddles. Layers are slices in Z axis. There are 10 layers for SL\#1 and only 1 layer (total ATOF length in Z) for SL\#0. Layer\#0 of SL\#0 is centered on $Z = 0$ with paddle
+starting at $Z = (-pad\_z /2)$ and ending at $Z = (+pad\_z /2)$. One ATOF paddle is a trapezoide defined by its 2 bases, the height and thickness ($Z = pad\_z$) in Z dimension, figure \ref{fig:atof_1}.     
+\begin{table}[H]
+\centering
+			\begin{tabular}{ccccc}
+              & \textbf{Sector} & \textbf{Superlayer} & \textbf{Layer} & \textbf{Component}                                  \\
+\textbf{ATOF} & 15              & 2                   & 10 or 1         & ScinitillatorPaddle
+			\end{tabular}
+	\end{table}	
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{ATOF_paddle.eps}
+	\caption{ATOF paddle detail.}
+	\label{fig:atof_1}
+\end{figure}
+
+The parameters necessary for geometry construction are listed below:
+\begin{itemize}
+		\item {\textcolor{magenta}{\texttt{int nsectors = 15}}}
+		\item {\textcolor{magenta}{\texttt{int nsuperl = 2}}}
+		\item {\textcolor{magenta}{\texttt{int nlayers = 10 OR 1}}} depending on the superlayer!
+		\item {\textcolor{magenta}{\texttt{int npaddles = 4}}}
+		%\item {\textcolor{magenta}{Advice: keep the previous features hardcoded since they represent a fixed ATOF design.}}
+		\item \texttt{double openAng\_pad\_deg = 6.0 degrees}, an angle of one trapezoide paddle. 
+		\item {Inner radius (mm) layer 0: \texttt{double R0 = 77.0d} \\
+        Inner radius (mm) layer 1: \texttt{double R1 = 80.0d} \\
+        Thickness (mm) layer 0: \texttt{double dR0 = 3.0d} \\
+        Thickness (mm) layer 1: \texttt{double dR1 = 20.0d}}
+		\item {Trapezoide dimensions for a bigger paddle: \\ 
+        		\texttt{double pad\_b1 = 8.17369 mm \\
+        				double pad\_b2 = 10.27 mm \\
+        				double pad\_h = 20.0 mm}}
+        
+		\item {Trapezoide dimensions for a smaller paddle: \\
+        		\texttt{double small\_pad\_b1 = 7.85924 mm \\
+        				double small\_pad\_b2 = 8.17369 mm \\
+        				double small\_pad\_h = 3.0 mm}}
+	\end{itemize}
+	
+The main classes needed to construct ATOF are:
+\begin{enumerate}
+	\item \texttt{MYFactory\_ATOF\_NewV2}, where the geometry is coded.
+	\item \texttt{MYDetector, MYSector, MYSuperlayer, MYLayer}, that have to exist to create the structure.
+	\item \texttt{ScintillatorPaddle}, define the ATOF smallest cell. Rotation of modules of 4 paddles is used in order to obtain the sectors. Translation of modules in $Z$ is used to obtain the layers in $Z$. A paddle is defined by 8 points, $4 \times 2$ faces.
+	\item \texttt{CLAS12Vis} is used to visualize the code output. Use \texttt{MYFactory\_ATOF\_NewV2} to create the ATOF factory. Create the detector itself by \\ \texttt{Detector cnd = factory.createDetectorCLAS(provider)}. \\ Give color by  \texttt{> viz.add(cnd, Color.green)} \\ and visulize by \\ \texttt{> viz.setVisible(true)}.
+\end{enumerate}
+
+The final ATOF geometry for reconstruction is shown on figures \ref{fig:atof_2}, \ref{fig:atof_3}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{ATOF_front_view.eps}
+	\caption{ATOF front view.}
+	\label{fig:atof_2}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{ATOF_profile_view.eps}
+	\caption{3D ATOF view. 10 layers in Z can be seen for SL\#1 and 1 layer in Z for SL\#0.}
+	\label{fig:atof_3}
+\end{figure}
+
+Finally, the AHDC is placed inside the ATOF. The assembly of both detection parts is shown on figure \ref{fig:alert_coatjava}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{ALERT_profile_view.eps}
+	\caption{ALERT reconstruction geometry, total view.}
+	\label{fig:alert_coatjava}
+\end{figure}
+
+Next chapter explains the procedure for translating the \textit{Coatjava} geometry into \textit{GEMC} framework. \textit{GEMC} geometry is necessary for performing Monte Carlo simulations.

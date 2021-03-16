@@ -1,0 +1,97 @@
+\documentclass[11pt,a4paper,english]{report}
+\usepackage{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{color}
+\usepackage{a4wide}
+\usepackage{fancyhdr}
+\usepackage{array,multirow,makecell}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{mathtools}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{titletoc}
+\usepackage{titlesec}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{MnSymbol,wasysym}
+\usepackage{pdfpages}
+\usepackage{afterpage}
+\usepackage{hyperref}
+\usepackage{verbatimbox}
+\usepackage{graphicx}
+\parskip 1ex
+\parindent 0in
+
+\renewcommand{\baselinestretch}{1.1}
+
+%\setlength{\topmargin}{-0.7cm} \setlength{\textwidth}{16.4cm}
+%\setlength{\textheight}{30cm} \setlength{\evensidemargin}{0cm}
+%\setlength{\oddsidemargin}{-0.5cm} \setlength{\topmargin}{-1.5cm}
+
+\setlength{\topmargin}{-0.8cm} \setlength{\textwidth}{16.4cm}
+\setlength{\textheight}{25.5cm} \setlength{\evensidemargin}{0cm}
+\setlength{\oddsidemargin}{-0.5cm} \setlength{\topmargin}{-1.5cm}
+
+\includeonly{geometry_service, geometry_to_GEMC, digitization, how_to_gemc}
+%\includeonly{how_to_gemc}
+
+\begin{document}
+		\renewcommand{\bibname}{Bibliography}
+	
+\begin{titlepage}
+	\begin{figure}
+		\includegraphics[width=0.3\textwidth]{logo_IJCLab.jpg}
+	\end{figure}
+	 
+	\centering
+	\vspace{20cm}		
+	\textit{ALERT software development.}
+	
+	\vspace{5cm}	
+		
+	\Large {\textbf { \textcolor{blue} {Geometry service and digitization implementation. \\ GEMC simulations for ALERT.}}}
+	
+	\vspace{10cm}
+	
+	\Large{\textbf {Viktoriya Sergeyeva}}
+	
+	\today
+	
+	\vspace{1.5cm}
+	\centering		
+	\small { \textit {Laboratoire de Physique des 2 Infinis Irène Joliot Curie (IJCLab), CNRS, IN2P3 \\ 15 Rue Georges Clemenceau, 91400 Orsay}}	
+\end{titlepage}
+
+\tableofcontents
+
+%\begin{abstract}
+%The abstract text goes here.
+%\end{abstract}
+
+\newpage
+
+\include{geometry_service}
+
+\include{geometry_to_GEMC}
+
+\include{digitization}
+
+\include{how_to_gemc}
+
+%\include{conclusions}
+
+%\begin{thebibliography}{4}
+	
+	%\bibitem{item1} ...
+	
+	%\bibitem{item2} ...
+	
+	%\bibitem{item3} ...
+	
+	%\bibitem{item4} ...
+	
+%\end{thebibliography}
+
+%{\listoffigures}
+%{\listoftables}
+\end{document}
